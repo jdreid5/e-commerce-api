@@ -1,35 +1,25 @@
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
-const session = require('express-session');
-const store = new session.MemoryStore();
 const db = require('./queries');
+const bcrypt = require('bcrypt');
 
 require('dotenv').config();
 
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET,
-    cookie: {
-      maxAge: 1000 * 60 * 60 * 24,
-      secure: true,
-      sameSite: 'none'
-    },
-    resave: false,
-    saveUninitialized: false,
-    store
-  })
-);
-
-app.use(passport.initialize());
-app.use(passport.session());
-
 passport.use(new LocalStrategy(
-  function(username, password, done) {
-    db.findByUsername(username, (error, user) => {
-      if (error) return done(error);
-      if (!user) return done(null, false);
-      if (user.password !== password) return done(null, false);
-      return done(null, user);
-    });
+  async (username, password, done) => {
+    const user = await db.findByUsername(username);
+    if (!user) return done(null, false);
+    const matchedPassword = await bcrypt.compare(password, user.password);
+    if (!matchedPassword) return done(null, false);
+    return done(null, user);
   }
 ));
+
+passport.serializeUser((user, done) => {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  const user = await db.findById(id);
+  done(null, user);
+});
