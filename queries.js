@@ -49,10 +49,16 @@ const findById = async (id) => {
   }
 };
 
-const getAllProducts = async () => {
+const getAllProducts = async (category) => {
   try {
-    const data = await pool.query('SELECT * FROM products;');
-    return data.rows;
+    console.log(category.category);
+    if (category === {}) {
+      const data = await pool.query('SELECT * FROM products;');
+      return data.rows;
+    } else {
+      const data = await pool.query('SELECT * FROM products WHERE category = $1;', [category.category]);
+      return data.rows;
+    }
   } catch (error) {
     throw error;
   }
