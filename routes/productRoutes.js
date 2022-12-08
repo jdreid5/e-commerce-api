@@ -6,7 +6,8 @@ const db = require('../queries');
 productRouter.get('/', async (req, res) => {
   const category = req.query;
   const products = await db.getAllProducts(category);
-  if (products) {
+  console.log(products);
+  if (products[0]) {
     res.status(200).json(products);
   } else {
     res.status(500).send();
@@ -19,7 +20,7 @@ productRouter.get('/:id', async (req, res) => {
   if (product) {
     res.status(200).json(product);
   } else {
-    res.status(404).send();
+    res.status(404).json({ msg: "product not found" });
   }
 });
 

@@ -20,7 +20,7 @@ const createUser = async ({username, password, address, email}) => {
     const newUser = await pool.query('SELECT * FROM user_accounts WHERE username = $1;', [username]);
     return newUser.rows[0];
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 };
 
@@ -30,7 +30,7 @@ const findByUsername = async (username) => {
     const data = await pool.query('SELECT * FROM user_accounts WHERE username = $1;', [username]);
     return data.rows[0];
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 };
 
@@ -40,7 +40,7 @@ const findById = async (id) => {
     const data = await pool.query('SELECT * FROM user_accounts WHERE id = $1', [id]);
     return data.rows[0];
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 };
 
@@ -57,6 +57,24 @@ const updateDetails = async ({ id, address, email }) => {
   }
 };
 
+const getOrders = async (id) => {
+  try {
+    const orderData = await pool.query('SELECT * FROM orders WHERE user_id = $1;', [id]);
+    return orderData.rows;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getOrderById = async (id) => {
+  try {
+    const orderData = await pool.query('SELECT * FROM orders WHERE id = $1;', [id]);
+    return orderData.rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const getAllProducts = async (category) => {
   try {
     if (category === {}) {
@@ -67,7 +85,7 @@ const getAllProducts = async (category) => {
       return data.rows;
     }
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 };
 
@@ -76,7 +94,7 @@ const getProductById = async (id) => {
     const data = await pool.query('SELECT * FROM products WHERE id = $1;', [id]);
     return data.rows[0];
   } catch (error) {
-    throw error;
+    console.log(error);
   }
 };
 
@@ -88,6 +106,8 @@ module.exports = {
   findByUsername,
   findById,
   updateDetails,
+  getOrders,
+  getOrderById,
   getAllProducts,
   getProductById
 };
