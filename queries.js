@@ -18,7 +18,6 @@ const createUser = async ({username, password, address, email}) => {
       [username, passwordHash, address, email]
     );
     const newUser = await pool.query('SELECT * FROM user_accounts WHERE username = $1;', [username]);
-    console.log(newUser.rows[0]);
     return newUser.rows[0];
   } catch (error) {
     throw error;
@@ -26,32 +25,40 @@ const createUser = async ({username, password, address, email}) => {
 };
 
 const findByUsername = async (username) => {
-  console.log(username);
+  // console.log('findByUsername username parameter: ' + username);
   try {
-    const data = await pool.query('SELECT * FROM user_accounts WHERE username = $1', [username]);
-    console.log(data.rows[0]);
+    const data = await pool.query('SELECT * FROM user_accounts WHERE username = $1;', [username]);
     return data.rows[0];
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
 
 const findById = async (id) => {
-  console.log(id);
+  console.log('findById id parameter: ' + id);
   try {
-    const data = await pool.query('SELECT * FROM user_accounts WHERE id = $1', [username]);
-    console.log(data.rows[0]);
+    const data = await pool.query('SELECT * FROM user_accounts WHERE id = $1', [id]);
     return data.rows[0];
   } catch (error) {
-    console.log(error);
     throw error;
+  }
+};
+
+const updateDetails = async ({ id, address, email }) => {
+  try {
+    pool.query('UPDATE user_accounts SET address = $2, email = $3 WHERE id = $1;', 
+      [id, address, email], 
+      (err) => (err) ? console.log(err.stack) : null 
+    );
+    const viewRecord = await pool.query('SELECT * FROM user_accounts WHERE id = $1;', [id]);
+    return viewRecord.rows[0];
+  } catch (error) {
+    console.log(error);
   }
 };
 
 const getAllProducts = async (category) => {
   try {
-    console.log(category.category);
     if (category === {}) {
       const data = await pool.query('SELECT * FROM products;');
       return data.rows;
@@ -62,7 +69,7 @@ const getAllProducts = async (category) => {
   } catch (error) {
     throw error;
   }
-}
+};
 
 const getProductById = async (id) => {
   try {
@@ -80,6 +87,7 @@ module.exports = {
   createUser,
   findByUsername,
   findById,
+  updateDetails,
   getAllProducts,
   getProductById
 };

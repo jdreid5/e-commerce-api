@@ -23,7 +23,4 @@ productRouter.get('/:id', async (req, res) => {
   }
 });
 
-// Retrieve products by category
-productRouter.get('/', )
-
 module.exports = productRouter;

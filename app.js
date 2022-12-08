@@ -7,21 +7,19 @@ const PORT = process.env.PORT || 3000;
 const db = require('./queries');
 const pgSession = require('connect-pg-simple')(session);
 
-const productRouter = require('./routes/productRoutes');
-
-app.use('/products', productRouter);
+app.set("view engine", "ejs");
 
 require('./passport');
 
 app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
   session({
     secret: process.env.SESSION_SECRET,
     cookie: {
       maxAge: 1000 * 60 * 60 * 24,
-      secure: true,
+      secure: false,
       sameSite: 'none'
     },
     resave: false,
@@ -30,21 +28,27 @@ app.use(
       pool: db.pool
     })
   })
-);
-
+  );
+  
 app.use(passport.initialize());
 app.use(passport.session());
 app.use((req, res, next) => {
   console.log(req.session);
-  console.log(req.user);
+  console.log('console.log req.user from middleware: ' + req.user);
   next();
 });
+
+const productRouter = require('./routes/productRoutes');
+const orderRouter = require('./routes/orderRoutes');
+const userRouter = require('./routes/userRoutes');
+
+app.use('/products', productRouter);
+app.use('/orders', orderRouter);
+app.use('/profile', userRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World');
 });
-
-app.get('/username', db.findByUsername);
 
 app.post('/register', async (req, res) => {
   const { username, password, address, email } = req.body;
@@ -62,9 +66,9 @@ app.post('/register', async (req, res) => {
 app.post(
   '/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
-  (req, res) => {
-    res.status(200).redirect('profile');
-  }
+    (req, res) => {
+      res.status(200).redirect('profile');
+    }
 );
 
 app.get('/logout', (req, res, next) => {
@@ -76,10 +80,11 @@ app.get('/logout', (req, res, next) => {
   });
 });
 
-app.get('/profile', (req, res) => {
-  // res.render('dashboard', { user: req.user })
-  next();
-});
+// app.get('/profile', (req, res, next) => {
+//   console.log('console.log from get profile req.user: ' + req.user);
+//   res.status(200).json({"valueofru": 25});
+//   next();
+// });
   
 app.listen(PORT, () => {
     console.log(`Server is listening on port ${PORT}`);
