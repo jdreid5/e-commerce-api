@@ -1,7 +1,7 @@
 const express = require('express');
 const orderRouter = express.Router();
 const db = require('../queries');
-const isAuth = require('./isAuth').isAuth;
+const isAuth = require('./middleware').isAuth;
 
 // Get all orders for a customer
 orderRouter.get('/', isAuth, async (req, res) => {

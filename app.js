@@ -42,11 +42,13 @@ const productRouter = require('./routes/productRoutes');
 const orderRouter = require('./routes/orderRoutes');
 const userRouter = require('./routes/userRoutes');
 const cartRouter = require('./routes/cartRoutes');
+const checkoutRouter = require('./routes/checkoutRoutes');
 
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/profile', userRouter);
 app.use('/cart', cartRouter);
+app.use('/checkout', checkoutRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World');
