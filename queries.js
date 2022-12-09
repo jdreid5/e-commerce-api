@@ -77,8 +77,9 @@ const getOrderById = async (id) => {
 
 const getAllProducts = async (category) => {
   try {
-    if (category === {}) {
-      const data = await pool.query('SELECT * FROM products;');
+    console.log('category: ' + category);
+    if (Object.keys(category).length === 0) {
+      const data = await pool.query('SELECT * FROM products ORDER BY name ASC;');
       return data.rows;
     } else {
       const data = await pool.query('SELECT * FROM products WHERE category = $1;', [category.category]);
@@ -98,6 +99,65 @@ const getProductById = async (id) => {
   }
 };
 
+const createCart = async (id) => {
+  try {
+    pool.query('INSERT INTO cart VALUES (DEFAULT, $1, 0.00);', 
+      [id],
+      (err) => (err) ? console.log(err.stack) : null
+    );
+    const newCart = await pool.query('SELECT * FROM cart WHERE user_id = $1;', [id]);
+    return newCart.rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const addProductToCart = async ({ cartId, productId }) => {
+  try {
+    const newItem = await pool.query('SELECT * FROM carts_items WHERE cart_id = $1 AND product_id = $2;', [cartId, productId]);
+    const newItemData = newItem.rows[0];
+    if (!newItemData) {
+      await pool.query('INSERT INTO carts_items VALUES ($1, $2, 1)', [cartId, productId]);
+    } else {
+      await pool.query('UPDATE carts_items SET quantity = quantity + 1 WHERE cart_id = $1 AND product_id = $2;', [cartId, productId]);
+    }
+    const subtotal = await pool.query('WITH item_cost AS (SELECT carts_items.quantity * products.price AS total_item_cost FROM carts_items JOIN products ON carts_items.product_id = products.id WHERE carts_items.cart_id = $1) SELECT SUM(total_item_cost) AS subtotal FROM item_cost', [cartId]);
+    const subtotalValue = subtotal.rows[0].subtotal;
+    pool.query('UPDATE cart SET subtotal = $2 WHERE id = $1;', 
+      [cartId, subtotalValue],
+      (err) => (err) ? console.log(err.stack) : null
+    );
+    const updatedCart = await pool.query('SELECT * FROM cart WHERE id = $1;', [cartId]);
+    return updatedCart.rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const removeProductFromCart = async ({ cartId, productId }) => {
+  try {
+    const newItem = await pool.query('SELECT * FROM carts_items WHERE cart_id = $1 AND product_id = $2;', [cartId, productId]);
+    const newItemData = newItem.rows[0];
+    if (!newItemData) {
+      const update = { msg: "product does not exist in cart" };
+      return update;
+    } else if (newItemData.quantity === 1) {
+      await pool.query('DELETE FROM carts_items WHERE cart_id = $1 AND product_id = $2;', [cartId, productId]);
+    } else {
+      await pool.query('UPDATE carts_items SET quantity = quantity - 1 WHERE cart_id = $1 AND product_id = $2;', [cartId, productId]);
+    }
+    const subtotal = await pool.query('WITH item_cost AS (SELECT carts_items.quantity * products.price AS total_item_cost FROM carts_items JOIN products ON carts_items.product_id = products.id WHERE carts_items.cart_id = $1) SELECT SUM(total_item_cost) AS subtotal FROM item_cost', [cartId]);
+    const subtotalValue = subtotal.rows[0].subtotal;
+    pool.query('UPDATE cart SET subtotal = $2 WHERE id = $1;', 
+      [cartId, subtotalValue],
+      (err) => (err) ? console.log(err.stack) : null
+    );
+    const updatedCart = await pool.query('SELECT * FROM cart WHERE id = $1;', [cartId]);
+    return updatedCart.rows[0];
+  } catch (error) {
+    console.log(error);
+  }
+};
 
 
 module.exports = {
@@ -109,5 +169,8 @@ module.exports = {
   getOrders,
   getOrderById,
   getAllProducts,
-  getProductById
+  getProductById,
+  createCart,
+  addProductToCart,
+  removeProductFromCart
 };

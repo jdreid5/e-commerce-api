@@ -32,19 +32,21 @@ app.use(
   
 app.use(passport.initialize());
 app.use(passport.session());
-app.use((req, res, next) => {
-  console.log(req.session);
-  console.log('console.log req.user from middleware: ' + req.user);
-  next();
-});
+// app.use((req, res, next) => {
+//   console.log(req.session);
+//   console.log('console.log req.user from middleware: ' + req.user);
+//   next();
+// });
 
 const productRouter = require('./routes/productRoutes');
 const orderRouter = require('./routes/orderRoutes');
 const userRouter = require('./routes/userRoutes');
+const cartRouter = require('./routes/cartRoutes');
 
 app.use('/products', productRouter);
 app.use('/orders', orderRouter);
 app.use('/profile', userRouter);
+app.use('/cart', cartRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello World');
