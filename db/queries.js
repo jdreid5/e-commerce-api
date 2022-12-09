@@ -25,7 +25,6 @@ const createUser = async ({username, password, address, email}) => {
 };
 
 const findByUsername = async (username) => {
-  // console.log('findByUsername username parameter: ' + username);
   try {
     const data = await pool.query('SELECT * FROM user_accounts WHERE username = $1;', [username]);
     return data.rows[0];
@@ -35,7 +34,6 @@ const findByUsername = async (username) => {
 };
 
 const findById = async (id) => {
-  console.log('findById id parameter: ' + id);
   try {
     const data = await pool.query('SELECT * FROM user_accounts WHERE id = $1', [id]);
     return data.rows[0];
@@ -77,7 +75,6 @@ const getOrderById = async (id) => {
 
 const getAllProducts = async (category) => {
   try {
-    console.log('category: ' + category);
     if (Object.keys(category).length === 0) {
       const data = await pool.query('SELECT * FROM products ORDER BY name ASC;');
       return data.rows;

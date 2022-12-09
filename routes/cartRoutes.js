@@ -1,7 +1,7 @@
 const express = require('express');
 const cartRouter = express.Router();
-const db = require('../queries');
-const isAuth = require('./middleware').isAuth;
+const db = require('../db/queries');
+const isAuth = require('../utilities/middleware').isAuth;
 
 // If cart does not exist, create a new cart - do this in frontend
 cartRouter.post('/', isAuth, async (req, res) => {

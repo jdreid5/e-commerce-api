@@ -1,6 +1,6 @@
 const express = require('express');
 const productRouter = express.Router();
-const db = require('../queries');
+const db = require('../db/queries');
 
 // Retrieve all products or all from category
 productRouter.get('/', async (req, res) => {

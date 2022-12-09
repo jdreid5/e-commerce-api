@@ -1,7 +1,7 @@
 const express = require('express');
 const userRouter = express.Router();
-const db = require('../queries');
-const isAuth = require('./middleware').isAuth;
+const db = require('../db/queries');
+const isAuth = require('../utilities/middleware').isAuth;
 
 // Get user profile
 userRouter.get('/', isAuth, (req, res, next) => {

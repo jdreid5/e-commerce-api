@@ -1,4 +1,4 @@
-const db = require('../queries');
+const db = require('../db/queries');
 
 module.exports.isAuth = (req, res, next) => {
   if (req.isAuthenticated()) {
