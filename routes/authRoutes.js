@@ -5,6 +5,7 @@ const passport = require('passport');
 
 require('../config/passport');
 
+// Register new user
 authRouter.post('/register', async (req, res) => {
   const { username, password, address, email } = req.body;
   const newUser = await db.createUser({ username, password, address, email });
@@ -18,6 +19,7 @@ authRouter.post('/register', async (req, res) => {
   }
 });
 
+// Login user
 authRouter.post(
   '/login',
   passport.authenticate('local', { failureRedirect: '/login' }),
@@ -26,6 +28,7 @@ authRouter.post(
     }
 );
 
+// Logout user
 authRouter.get('/logout', (req, res, next) => {
   req.logout(function(err) {
     if (err) { 

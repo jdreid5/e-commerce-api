@@ -3,13 +3,13 @@ const cartRouter = express.Router();
 const db = require('../db/queries');
 const isAuth = require('../utilities/middleware').isAuth;
 
-// If cart does not exist, create a new cart - do this in frontend
+// Create cart. If cart does not exist, create a new cart - do this in frontend
 cartRouter.post('/', isAuth, async (req, res) => {
   const newCart = await db.createCart(req.user.id);
   if (newCart) {
     res.status(200).json(newCart);
   } else {
-    res.status(400).send();
+    res.status(400).json({ msg: "failed to create cart" });
   }
 });
 
@@ -21,7 +21,6 @@ cartRouter.post('/', isAuth, async (req, res) => {
 cartRouter.put('/', isAuth, async (req, res) => {
   const { cartId, productId, addremove } = req.body;
   const updatedCart = (addremove) ? await db.addProductToCart({ cartId, productId }) : await db.removeProductFromCart({ cartId, productId });
-  console.log(updatedCart);
   if (!updatedCart) {
     res.status(500).json({ msg: "cart failed to update" });
   } else {
@@ -29,6 +28,7 @@ cartRouter.put('/', isAuth, async (req, res) => {
   }
 });
 
+// Get cart
 cartRouter.get('/', isAuth, async (req, res) => {
   const cart = await db.getCart(req.user.id);
   if (cart) {

@@ -1,0 +1,406 @@
+openapi: 3.0.3
+info:
+  title: Codecademy E-Commerce-API Project
+  version: 1.0.0
+  description: >-
+    An e-commerce application REST API built with Express.js and PostgreSQL.
+    Features include authentication via Passport.js and various CRUD operations
+    on a variety of paths.
+paths:
+  /auth/register:
+    summary: Register new user.
+    description: >-
+      Registers a new user with username, password, address and email, and
+      stores it in the database. Hashes password with Bcrypt before storing. 
+    post:
+      summary: Register new user
+      description: >-
+        Creates a new user and stores in the database. Hashes password with
+        Bcrypt
+      operationId: create_new_user
+      responses:
+        '201':
+          content:
+            application/json:
+              examples:
+                user-created:
+                  value:
+                    msg: User created
+                    newUser: newUser
+        '500':
+          content:
+            application/json:
+              examples:
+                failed-to-create user:
+                  value:
+                    msg: Failed to create user
+        default:
+          description: Default error sample response
+      tags:
+        - Authentication
+  /auth/login:
+    summary: Logs in a user.
+    description: Logs in an already registered user and authenticates with Passport.js
+    post:
+      summary: Logs in existing user.
+      description: Logs in an existing user using Passport.js for authentication.
+      operationId: login_user
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                success-redirect:
+                  value: '{ "user": "req.user" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Authentication
+  /auth/logout:
+    summary: Logs out a user.
+    description: Logs out an already logged in user and clears their session.
+    get:
+      summary: Logs out user.
+      description: Logs out a currently logged in user and clears their session.
+      operationId: logout_user
+      responses:
+        default:
+          description: Default error sample response
+      tags:
+        - Authentication
+  /profile:
+    summary: Gets and updates user details.
+    description: This path is for getting user details and updating them in the database.
+    get:
+      summary: Get user profile.
+      description: >-
+        Retrieves user profile from the database with authentication check
+        middleware.
+      operationId: get_user
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                user:
+                  value: '{ "msg": "successfully logged in" }'
+        default:
+          description: Default error sample response
+      tags:
+        - User
+    put:
+      summary: Updates user profile.
+      description: >-
+        Updates address and email parameters for a registered user in the
+        database with authentication check middleware.
+      operationId: update_user
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                updated-record:
+                  value: |-
+                    {
+                        "id": 4,
+                        "username": "username",
+                        "password": "$2b$10$GVXWL4MPJpfxuu4P2xwLG.QgajUIB8uWNSWoARK1Ue/AG2nZqYczC",
+                        "address": "line1, line2, line 3, postcode",
+                        "email": "email@gmail.com"
+                    }
+        '400':
+          content:
+            application/json:
+              examples:
+                failed-to-update:
+                  value: '{ "msg": "failed to update profile" }'
+        default:
+          description: Default error sample response
+      tags:
+        - User
+  /products:
+    summary: Gets all products or products from category.
+    description: >-
+      Retrieves all products from the database or filtered via category
+      selection.
+    get:
+      summary: Get all products or from category
+      description: >-
+        Retrieves all products or retrieves all products from a selected
+        category.
+      operationId: get_products
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                all-products:
+                  value: |-
+                    [
+                        {
+                            "id": 2,
+                            "name": "pickled onions",
+                            "price": "£2.99",
+                            "category": "pickled_goods"
+                        },
+                        {
+                            "id": 1,
+                            "name": "strawberry jam",
+                            "price": "£4.99",
+                            "category": "jams"
+                        }
+                    ]
+        '500':
+          content:
+            application/json:
+              examples:
+                get-failure:
+                  value: '{ "msg":"could not retrieve products" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Products
+  /products/{id}:
+    summary: Gets single product.
+    description: Retrieves a single product from the database via an ID parameter.
+    get:
+      summary: Get product by ID
+      description: Retrieves single product by ID from the database.
+      operationId: get_product_by_id
+      parameters:
+        - name: id
+          in: path
+          description: 'product ID'
+          required: true
+          schema: 
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                product-by-ID:
+                  value: |-
+                    {
+                        "id": 1,
+                        "name": "strawberry jam",
+                        "price": "£4.99",
+                        "category": "jams"
+                    }
+        '404':
+          content:
+            application/json:
+              examples:
+                product-not-found:
+                  value: '{ "msg": "product not found" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Products
+  /cart:
+    summary: Create user cart, get user cart or update user cart.
+    description: >-
+      This path is used for creating a shopping cart tied to the user, as well
+      as updating that cart or retrieving it.
+    post:
+      summary: Create cart
+      description: >-
+        Creates a new shopping cart for the user and stores it in the database
+        with authentication check middleware.
+      operationId: create_cart
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                new-cart:
+                  value: |-
+                    {
+                        "id": 5,
+                        "user_id": 4,
+                        "subtotal": "£0.00"
+                    }
+        '400':
+          content:
+            application/json:
+              examples:
+                failure:
+                  value: '{ "msg": "failed to create cart" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Cart
+    put:
+      summary: Add/remove product from cart.
+      description: >-
+        Adds or removes a single quantity of a product to the cart and updates
+        the database with authentication check middleware.
+      operationId: update_cart
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                updated-cart:
+                  value: |-
+                    {
+                        "id": 5,
+                        "user_id": 4,
+                        "subtotal": "£2.99"
+                    }
+        '500':
+          content:
+            application/json:
+              examples:
+                failure-to-update:
+                  value: '{ "msg": "cart failed to update" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Cart
+    get:
+      summary: Get cart.
+      description: >-
+        Retrieves cart object from database with authentication check
+        middleware.
+      operationId: get_cart
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                retrieved-cart:
+                  value: |-
+                    [
+                        {
+                            "name": "pickled onions",
+                            "price": "£2.99",
+                            "quantity": 1,
+                            "total_item_cost": "£2.99",
+                            "subtotal": "£2.99"
+                        }
+                    ]
+        '500':
+          content:
+            application/json:
+              examples:
+                could-not-get-cart:
+                  value: '{ "msg": "could not retrieve cart" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Cart
+  /checkout:
+    summary: Completes payment route
+    description: >-
+      This path carries out the checkout process and creates an order once
+      completed.
+    post:
+      summary: Completes checkout process.
+      description: >-
+        Carries out the checkout process, first validating the cart, then
+        processing payment, then creating an order and storing it in the
+        database.
+      operationId: post_checkout
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                processed-order:
+                  value: |-
+                    {
+                      id: 8,
+                      user_id: 4,
+                      total_cost: '£2.99',
+                      status: 'processed',
+                      timestamp: 2022-12-10T13:44:33.584Z
+                    }
+        '500':
+          content:
+            application/json:
+              examples:
+                order-failure:
+                  value: '{ "msg": "order failed" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Checkout
+  /orders:
+    summary: Get all orders for a customer.
+    description: This path retrieves all orders and information for a customer.
+    get:
+      summary: Get all orders.
+      description: >-
+        Retrieves all orders for a customer from the database with
+        authentication check middleware.
+      operationId: get_orders
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                get-all-orders:
+                  value: |-
+                    [
+                        {
+                            "id": 5,
+                            "user_id": 4,
+                            "total_cost": "£25.94",
+                            "status": "processed",
+                            "timestamp": "2022-12-09T15:56:41.049Z"
+                        },
+                        {
+                            "id": 6,
+                            "user_id": 4,
+                            "total_cost": "£25.94",
+                            "status": "processed",
+                            "timestamp": "2022-12-09T16:54:11.327Z"
+                        }
+                    ]
+                no-order-history:
+                  value: '{ msg: "You have no order history" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Orders
+  /orders/{id}:
+    summary: Get single order by ID
+    description: This path retrieves a single order by ID for a customer.
+    get:
+      summary: Get order by ID
+      description: >-
+        Retrieves a single order by ID from the database with authentication
+        check middleware.
+      operationId: get_order_by_id
+      parameters:
+        - name: id
+          in: path
+          description: 'order ID'
+          required: true
+          schema: 
+            type: string
+      responses:
+        '200':
+          content:
+            application/json:
+              examples:
+                get-order-by-id:
+                  value: |-
+                    {
+                        "id": 8,
+                        "user_id": 4,
+                        "total_cost": "£2.99",
+                        "status": "processed",
+                        "timestamp": "2022-12-10T13:44:33.584Z"
+                    }
+        '500':
+          content:
+            application/json:
+              examples:
+                could-not-get-order:
+                  value: '{ "msg": "could not retrieve order information" }'
+        default:
+          description: Default error sample response
+      tags:
+        - Orders

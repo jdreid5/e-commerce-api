@@ -10,7 +10,7 @@ productRouter.get('/', async (req, res) => {
   if (products[0]) {
     res.status(200).json(products);
   } else {
-    res.status(500).send();
+    res.status(500).json({ "msg": "could not retrieve products" });
   }
 });
 

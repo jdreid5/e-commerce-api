@@ -6,6 +6,7 @@ const isAuth = require('../utilities/middleware').isAuth;
 // Get user profile
 userRouter.get('/', isAuth, (req, res, next) => {
   console.log('user properties available in req.user: ' + req.user.id);
+  res.status(200).json({ msg: "successfully logged in" });
   // res.render('dashboard', { user: req.user })
   next();
 });
@@ -18,7 +19,7 @@ userRouter.put('/', isAuth, async (req, res) => {
   if (updatedRecord) {
     res.status(200).json(updatedRecord);
   } else {
-    res.status(400).send();
+    res.status(400).json({ msg: "failed to update profile" });
   }
 });
 

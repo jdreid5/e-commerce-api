@@ -3,6 +3,7 @@ const checkoutRouter = express.Router();
 const db = require('../db/queries');
 const { isAuth, validateCart } = require('../utilities/middleware');
 
+// Complete checkout process
 checkoutRouter.post('/', isAuth, validateCart, async (req, res) => {
   // process payment
   const userid = req.user.id;
@@ -10,8 +11,8 @@ checkoutRouter.post('/', isAuth, validateCart, async (req, res) => {
   const { id, subtotal } = cart;
   const newOrder = await db.createOrder({ userid, id, subtotal });
   console.log(newOrder);
-  if (cart) {
-    res.status(200).json(cart);
+  if (newOrder) {
+    res.status(200).json(newOrder);
   } else {
     res.status(500).json({ msg: "order failed" });
   }
